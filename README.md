@@ -6,6 +6,10 @@ A command-line tool for creating and managing Aioli projects (Laravel backend + 
 
 Aioli CLI streamlines the process of creating and managing projects based on the Aioli stack - a combination of Laravel (backend API) and Electron (desktop application frontend). This tool automates the setup process, allowing you to quickly scaffold new projects with a standard structure.
 
+The Aioli stack consists of:
+- [aioli-laravel](https://github.com/n1ch0la5/aioli-laravel) - The Laravel backend API
+- [aioli-electron](https://github.com/n1ch0la5/aioli-electron) - The Electron desktop application frontend
+
 ## Installation
 
 ```bash
@@ -79,8 +83,8 @@ myproject/
 
 If you need to modify the default repositories or behavior:
 
-1. Fork the aioli-laravel and aioli-electron repositories
-2. Clone the aioli-cli repository
+1. Fork the [aioli-laravel](https://github.com/n1ch0la5/aioli-laravel) and [aioli-electron](https://github.com/n1ch0la5/aioli-electron) repositories
+2. Clone the [aioli-cli](https://github.com/n1ch0la5/aioli-cli) repository
 3. Modify the repository URLs in the CLI code
 4. Publish your version of the CLI
 
@@ -94,7 +98,7 @@ If you need to modify the default repositories or behavior:
 
 ### Getting Help
 
-If you encounter any issues, please open an issue on the GitHub repository.
+If you encounter any issues, please open an issue on the [GitHub repository](https://github.com/n1ch0la5/aioli-cli).
 
 ## Contributing
 
