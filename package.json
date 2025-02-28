@@ -1,0 +1,23 @@
+{
+  "name": "aioli-cli",
+  "version": "1.0.0",
+  "description": "CLI tool for creating new Aioli projects",
+  "main": "index.js",
+  "bin": {
+    "aioli": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "aioli",
+    "laravel",
+    "electron",
+    "cli"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.0.0"
+  }
+}
