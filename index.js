@@ -123,6 +123,20 @@ program
       // Not exiting as this is not critical to project creation
     }
     
+    // Run Composer install and Artisan setup
+    try {
+      console.log(`Installing Composer dependencies and running setup in ${projectName}api directory...`);
+      execSync(`cd ${path.join(projectPath, `${projectName}api`)} && composer install`, { stdio: 'inherit' });
+      console.log('✅ Composer dependencies installed successfully');
+      
+      execSync(`cd ${path.join(projectPath, `${projectName}api`)} && php artisan aioli:setup`, { stdio: 'inherit' });
+      console.log('✅ Aioli setup completed successfully');
+    } catch (error) {
+      console.error(`❌ Failed during Composer/Artisan setup: ${error.message}`);
+      console.error(`You may need to run "composer install" and "php artisan aioli:setup" manually in the ${projectName}api directory`);
+      // Not exiting as this is not critical to project creation
+    }
+    
     // Initialize a new git repository for the overall project
     try {
       console.log('Initializing new git repository for the project...');

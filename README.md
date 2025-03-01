@@ -39,8 +39,10 @@ This command:
 1. Creates a new directory structure with `projectnameapi` (Laravel backend) and `projectnameapp` (Electron frontend)
 2. Clones the repositories from GitHub
 3. Sets up Laravel Herd for local development
-4. Initializes a new Git repository for the project
-5. Optionally opens the projects in VS Code
+4. Runs `composer install` in the API directory
+5. Runs `php artisan aioli:setup` to configure the Laravel application
+6. Initializes a new Git repository for the project
+7. Optionally opens the projects in VS Code
 
 #### Options
 
