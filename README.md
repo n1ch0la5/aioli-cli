@@ -26,7 +26,7 @@ npm install -g n1ch0la5/aioli-cli
 - Git
 - Laravel Herd (for local development)
 - Visual Studio Code (optional, for the open-in-editor feature)
-- "Open Terminal Programmatically" vscode extension. 
+- "Open Terminal Programmatically" VS Code extension
 
 ## Usage
 
@@ -50,13 +50,13 @@ This command:
    - Deletes the .env.example file
 7. Attempts to install npm dependencies in the app directory
 8. Initializes a new Git repository for the project
-8. Optionally opens the projects in VS Code
+9. Optionally opens the projects in VS Code
 
 #### Options
 
 - `-p, --path <path>` - Specify a custom path for project creation (default: current directory)
 
-### Starting the Development Server
+### Starting the Development Server (Laravel)
 
 ```bash
 aioli start
@@ -87,7 +87,11 @@ myproject/
 1. Create a new project: `aioli new myproject`
 2. Navigate to the project: `cd myproject`
 3. Start the development environment: `aioli start`
-4. Begin development in the automatically opened VS Code windows
+4. Register a new user and copy the email/username to the electron app .env file
+5. Start both applications:
+   - Laravel: `aioli start` (from the project root)
+   - Electron: `cd myprojectapp && npm run dev`
+6. Begin development in the VS Code windows
 
 ## Customization
 
