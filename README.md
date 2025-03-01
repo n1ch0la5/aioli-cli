@@ -41,8 +41,13 @@ This command:
 3. Sets up Laravel Herd for local development
 4. Runs `composer install` in the API directory
 5. Runs `php artisan aioli:setup` to configure the Laravel application
-6. Initializes a new Git repository for the project
-7. Optionally opens the projects in VS Code
+6. Configures the Electron app's environment file with correct values:
+   - Creates .env from .env.example
+   - Sets Laravel URI to https://projectname.test
+   - Sets Reverb host to projectname.test
+   - Copies the Reverb app key from the Laravel .env
+7. Initializes a new Git repository for the project
+8. Optionally opens the projects in VS Code
 
 #### Options
 

@@ -131,6 +131,52 @@ program
       
       execSync(`cd ${path.join(projectPath, `${projectName}api`)} && php artisan aioli:setup`, { stdio: 'inherit' });
       console.log('✅ Aioli setup completed successfully');
+      
+      // Get the REVERB_APP_KEY from the Laravel .env file
+      console.log('Reading REVERB_APP_KEY from Laravel .env file...');
+      let reverbAppKey = '';
+      try {
+        const laravelEnv = fs.readFileSync(path.join(projectPath, `${projectName}api`, '.env'), 'utf8');
+        const reverbKeyMatch = laravelEnv.match(/REVERB_APP_KEY=([^\r\n]+)/);
+        if (reverbKeyMatch && reverbKeyMatch[1]) {
+          reverbAppKey = reverbKeyMatch[1];
+          console.log('✅ REVERB_APP_KEY found');
+        } else {
+          console.log('⚠️ REVERB_APP_KEY not found in Laravel .env');
+        }
+      } catch (error) {
+        console.error(`⚠️ Error reading Laravel .env: ${error.message}`);
+      }
+      
+      // Set up the Electron app's .env file
+      console.log(`Setting up environment in ${projectName}app directory...`);
+      try {
+        // Copy .env.example to .env
+        fs.copyFileSync(
+          path.join(projectPath, `${projectName}app`, '.env.example'),
+          path.join(projectPath, `${projectName}app`, '.env')
+        );
+        
+        // Read the app .env file
+        let appEnv = fs.readFileSync(path.join(projectPath, `${projectName}app`, '.env'), 'utf8');
+        
+        // Update the values
+        appEnv = appEnv
+          .replace(/VITE_LARAVEL_URI=.*/, `VITE_LARAVEL_URI=https://${projectName}.test`)
+          .replace(/VITE_REVERB_HOST=.*/, `VITE_REVERB_HOST=${projectName}.test`);
+        
+        // Add REVERB_APP_KEY if found
+        if (reverbAppKey) {
+          appEnv = appEnv.replace(/VITE_REVERB_APP_KEY=.*/, `VITE_REVERB_APP_KEY=${reverbAppKey}`);
+        }
+        
+        // Write back the modified .env file
+        fs.writeFileSync(path.join(projectPath, `${projectName}app`, '.env'), appEnv);
+        console.log('✅ App environment configured successfully');
+      } catch (error) {
+        console.error(`❌ Failed to configure app environment: ${error.message}`);
+        console.error(`You may need to manually configure the .env file in the ${projectName}app directory`);
+      }
     } catch (error) {
       console.error(`❌ Failed during Composer/Artisan setup: ${error.message}`);
       console.error(`You may need to run "composer install" and "php artisan aioli:setup" manually in the ${projectName}api directory`);
