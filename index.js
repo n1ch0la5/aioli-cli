@@ -4,6 +4,10 @@ const { program } = require('commander');
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+
+// Detect platform
+const isWindows = process.platform === 'win32';
 
 program
   .name('aioli')
@@ -66,7 +70,14 @@ program
     // Run the startdev.js script
     try {
       console.log(`Running node startdev.js in ${apiDir}...`);
-      execSync(`cd ${apiDir} && node startdev.js`, { stdio: 'inherit' });
+      
+      // Use node directly to ensure it runs properly on all platforms
+      const nodeExe = isWindows ? 'node.exe' : 'node';
+      execSync(`cd "${apiDir}" && ${nodeExe} startdev.js`, { 
+        stdio: 'inherit',
+        // Ensure proper shell on Windows
+        shell: isWindows ? true : '/bin/bash'
+      });
     } catch (error) {
       console.error(`❌ Failed to start development server: ${error.message}`);
       process.exit(1);
@@ -82,6 +93,9 @@ program
     
     console.log(`Creating new Aioli project: ${projectName}`);
     
+    // Use double quotes for paths on Windows
+    const quoteChar = isWindows ? '"' : "'";
+    
     // Create project directory
     try {
       fs.mkdirSync(projectPath, { recursive: true });
@@ -94,7 +108,15 @@ program
     // Clone the backend repository
     try {
       console.log('Cloning backend (Laravel) repository...');
-      execSync(`git clone git@github.com:n1ch0la5/aioli-laravel.git ${path.join(projectPath, `${projectName}api`)}`, { stdio: 'inherit' });
+      // Use HTTPS URLs for better Windows compatibility
+      const gitCloneCmd = isWindows 
+        ? `git clone https://github.com/n1ch0la5/aioli-laravel.git "${path.join(projectPath, `${projectName}api`)}"`
+        : `git clone git@github.com:n1ch0la5/aioli-laravel.git '${path.join(projectPath, `${projectName}api`)}'`;
+      
+      execSync(gitCloneCmd, { 
+        stdio: 'inherit',
+        shell: isWindows ? true : '/bin/bash'
+      });
       console.log('✅ Backend repository cloned successfully');
     } catch (error) {
       console.error(`❌ Failed to clone backend repository: ${error.message}`);
@@ -104,39 +126,67 @@ program
     // Clone the frontend repository
     try {
       console.log('Cloning frontend (Electron) repository...');
-      execSync(`git clone git@github.com:n1ch0la5/aioli-electron.git ${path.join(projectPath, `${projectName}app`)}`, { stdio: 'inherit' });
+      // Use HTTPS URLs for better Windows compatibility
+      const gitCloneCmd = isWindows 
+        ? `git clone https://github.com/n1ch0la5/aioli-electron.git "${path.join(projectPath, `${projectName}app`)}"`
+        : `git clone git@github.com:n1ch0la5/aioli-electron.git '${path.join(projectPath, `${projectName}app`)}'`;
+      
+      execSync(gitCloneCmd, { 
+        stdio: 'inherit',
+        shell: isWindows ? true : '/bin/bash'
+      });
       console.log('✅ Frontend repository cloned successfully');
     } catch (error) {
       console.error(`❌ Failed to clone frontend repository: ${error.message}`);
       process.exit(1);
     }
     
-    // Run Herd commands in the backend directory
-    try {
-      console.log(`Setting up Laravel Herd in ${projectName}api directory...`);
-      execSync(`cd ${path.join(projectPath, `${projectName}api`)} && herd link`, { stdio: 'inherit' });
-      execSync(`cd ${path.join(projectPath, `${projectName}api`)} && herd secure`, { stdio: 'inherit' });
-      console.log('✅ Herd setup completed successfully');
-    } catch (error) {
-      console.error(`❌ Failed to set up Herd: ${error.message}`);
-      console.error(`Please run "herd link" and "herd secure" manually in the ${projectName}api directory`);
-      // Not exiting as this is not critical to project creation
+    // Run Herd commands in the backend directory (if not on Windows)
+    if (!isWindows) {
+      try {
+        console.log(`Setting up Laravel Herd in ${projectName}api directory...`);
+        execSync(`cd '${path.join(projectPath, `${projectName}api`)}' && herd link`, { stdio: 'inherit' });
+        execSync(`cd '${path.join(projectPath, `${projectName}api`)}' && herd secure`, { stdio: 'inherit' });
+        console.log('✅ Herd setup completed successfully');
+      } catch (error) {
+        console.error(`❌ Failed to set up Herd: ${error.message}`);
+        console.error(`Please run "herd link" and "herd secure" manually in the ${projectName}api directory`);
+        // Not exiting as this is not critical to project creation
+      }
+    } else {
+      console.log(`⚠️ Skipping Herd setup on Windows. Please set up your local development environment manually.`);
     }
     
     // Run Composer install and Artisan setup
     try {
       console.log(`Installing Composer dependencies and running setup in ${projectName}api directory...`);
-      execSync(`cd ${path.join(projectPath, `${projectName}api`)} && composer install`, { stdio: 'inherit' });
+      
+      const apiDirPath = path.join(projectPath, `${projectName}api`);
+      const composerCmd = isWindows 
+        ? `cd "${apiDirPath}" && composer install`
+        : `cd '${apiDirPath}' && composer install`;
+      
+      execSync(composerCmd, { 
+        stdio: 'inherit',
+        shell: isWindows ? true : '/bin/bash'
+      });
       console.log('✅ Composer dependencies installed successfully');
       
-      execSync(`cd ${path.join(projectPath, `${projectName}api`)} && php artisan aioli:setup`, { stdio: 'inherit' });
+      const artisanCmd = isWindows 
+        ? `cd "${apiDirPath}" && php artisan aioli:setup`
+        : `cd '${apiDirPath}' && php artisan aioli:setup`;
+      
+      execSync(artisanCmd, { 
+        stdio: 'inherit',
+        shell: isWindows ? true : '/bin/bash'
+      });
       console.log('✅ Aioli setup completed successfully');
       
       // Get the REVERB_APP_KEY from the Laravel .env file
       console.log('Reading REVERB_APP_KEY from Laravel .env file...');
       let reverbAppKey = '';
       try {
-        const laravelEnv = fs.readFileSync(path.join(projectPath, `${projectName}api`, '.env'), 'utf8');
+        const laravelEnv = fs.readFileSync(path.join(apiDirPath, '.env'), 'utf8');
         const reverbKeyMatch = laravelEnv.match(/REVERB_APP_KEY=([^\r\n]+)/);
         if (reverbKeyMatch && reverbKeyMatch[1]) {
           reverbAppKey = reverbKeyMatch[1];
@@ -151,14 +201,16 @@ program
       // Set up the Electron app's .env file
       console.log(`Setting up environment in ${projectName}app directory...`);
       try {
+        const appDirPath = path.join(projectPath, `${projectName}app`);
+        
         // Copy .env.example to .env
         fs.copyFileSync(
-          path.join(projectPath, `${projectName}app`, '.env.example'),
-          path.join(projectPath, `${projectName}app`, '.env')
+          path.join(appDirPath, '.env.example'),
+          path.join(appDirPath, '.env')
         );
         
         // Read the app .env file
-        let appEnv = fs.readFileSync(path.join(projectPath, `${projectName}app`, '.env'), 'utf8');
+        let appEnv = fs.readFileSync(path.join(appDirPath, '.env'), 'utf8');
         
         // Update the values
         appEnv = appEnv
@@ -171,66 +223,29 @@ program
         }
         
         // Write back the modified .env file
-        fs.writeFileSync(path.join(projectPath, `${projectName}app`, '.env'), appEnv);
+        fs.writeFileSync(path.join(appDirPath, '.env'), appEnv);
         
         // Delete the .env.example file
-        fs.unlinkSync(path.join(projectPath, `${projectName}app`, '.env.example'));
+        fs.unlinkSync(path.join(appDirPath, '.env.example'));
         
         console.log('✅ App environment configured successfully');
-        
-        // Clear localStorage by creating a script in the app directory
-        console.log('Setting up localStorage clearing...');
-        const electronAppDir = path.join(projectPath, `${projectName}app`);
-        const clearScriptPath = path.join(electronAppDir, 'clear-storage.js');
-        
-        // Create the script to clear localStorage
-        fs.writeFileSync(clearScriptPath, `
-// This script clears localStorage for the Electron app
-const { app } = require('electron');
-const fs = require('fs');
-const path = require('path');
-
-// Run this after the app is ready
-app.on('ready', () => {
-  try {
-    // Get the user data directory
-    const userDataPath = app.getPath('userData');
-    
-    // Clear localStorage files
-    const localStoragePath = path.join(userDataPath, 'Local Storage');
-    if (fs.existsSync(localStoragePath)) {
-      const files = fs.readdirSync(localStoragePath);
-      files.forEach(file => {
-        if (file.includes('leveldb')) {
-          const filePath = path.join(localStoragePath, file);
-          fs.unlinkSync(filePath);
-          console.log(\`Removed localStorage file: \${file}\`);
-        }
-      });
-      console.log('localStorage cleared successfully');
-    } else {
-      console.log('No localStorage directory found');
-    }
-    
-    console.log('Storage clearing completed');
-    process.exit(0);
-  } catch (error) {
-    console.error(\`Error clearing storage: \${error.message}\`);
-    process.exit(1);
-  }
-});
-        `);
-        
-        console.log('✅ localStorage clearing script created');
         
         // Try to run npm install in the app directory
         try {
           console.log(`Installing npm dependencies in ${projectName}app directory...`);
-          execSync(`cd ${path.join(projectPath, `${projectName}app`)} && npm install`, { 
+          
+          const npmCmd = isWindows 
+            ? `cd "${appDirPath}" && npm install`
+            : `cd '${appDirPath}' && npm install`;
+          
+          execSync(npmCmd, { 
             stdio: 'inherit',
-            env: { ...process.env, HOME: require('os').homedir() } // Ensure HOME is set correctly
+            env: { ...process.env, HOME: os.homedir() }, // Ensure HOME is set correctly
+            shell: isWindows ? true : '/bin/bash'
           });
           console.log('✅ npm dependencies installed successfully');
+          
+          // Clear localStorage is handled automatically by the postinstall script
         } catch (error) {
           console.error(`⚠️ Failed to install npm dependencies: ${error.message}`);
           console.error(`You may need to manually run "npm install" in the ${projectName}app directory`);
@@ -251,13 +266,33 @@ app.on('ready', () => {
       console.log('Initializing new git repository for the project...');
       
       // Remove the .git directories from the cloned repos
-      execSync(`rm -rf ${path.join(projectPath, `${projectName}api/.git`)}`, { stdio: 'inherit' });
-      execSync(`rm -rf ${path.join(projectPath, `${projectName}app/.git`)}`, { stdio: 'inherit' });
+      const rmApiGitCmd = isWindows 
+        ? `rmdir /s /q "${path.join(projectPath, `${projectName}api`, '.git')}"`
+        : `rm -rf '${path.join(projectPath, `${projectName}api/.git`)}'`;
+      
+      const rmAppGitCmd = isWindows 
+        ? `rmdir /s /q "${path.join(projectPath, `${projectName}app`, '.git')}"`
+        : `rm -rf '${path.join(projectPath, `${projectName}app/.git`)}'`;
+      
+      execSync(rmApiGitCmd, { stdio: 'inherit', shell: isWindows ? true : '/bin/bash' });
+      execSync(rmAppGitCmd, { stdio: 'inherit', shell: isWindows ? true : '/bin/bash' });
       
       // Initialize a new git repository
-      execSync(`cd ${projectPath} && git init`, { stdio: 'inherit' });
-      execSync(`cd ${projectPath} && git add .`, { stdio: 'inherit' });
-      execSync(`cd ${projectPath} && git commit -m "Initial commit for ${projectName} project"`, { stdio: 'inherit' });
+      const gitInitCmd = isWindows 
+        ? `cd "${projectPath}" && git init`
+        : `cd '${projectPath}' && git init`;
+      
+      const gitAddCmd = isWindows 
+        ? `cd "${projectPath}" && git add .`
+        : `cd '${projectPath}' && git add .`;
+      
+      const gitCommitCmd = isWindows 
+        ? `cd "${projectPath}" && git commit -m "Initial commit for ${projectName} project"`
+        : `cd '${projectPath}' && git commit -m "Initial commit for ${projectName} project"`;
+      
+      execSync(gitInitCmd, { stdio: 'inherit', shell: isWindows ? true : '/bin/bash' });
+      execSync(gitAddCmd, { stdio: 'inherit', shell: isWindows ? true : '/bin/bash' });
+      execSync(gitCommitCmd, { stdio: 'inherit', shell: isWindows ? true : '/bin/bash' });
       
       console.log('✅ Git repository initialized successfully');
     } catch (error) {
@@ -285,11 +320,19 @@ app.on('ready', () => {
         console.log('Opening projects in VS Code...');
         try {
           // Open the API project
-          execSync(`code ${path.join(projectPath, `${projectName}api`)}`, { stdio: 'inherit' });
+          const openApiCmd = isWindows 
+            ? `code "${path.join(projectPath, `${projectName}api`)}"`
+            : `code '${path.join(projectPath, `${projectName}api`)}'`;
+          
+          const openAppCmd = isWindows 
+            ? `code "${path.join(projectPath, `${projectName}app`)}"`
+            : `code '${path.join(projectPath, `${projectName}app`)}'`;
+          
+          execSync(openApiCmd, { stdio: 'inherit', shell: isWindows ? true : '/bin/bash' });
           console.log(`✅ Opened ${projectName}api in VS Code`);
           
           // Open the App project
-          execSync(`code ${path.join(projectPath, `${projectName}app`)}`, { stdio: 'inherit' });
+          execSync(openAppCmd, { stdio: 'inherit', shell: isWindows ? true : '/bin/bash' });
           console.log(`✅ Opened ${projectName}app in VS Code`);
         } catch (error) {
           console.error(`❌ Failed to open projects in VS Code: ${error.message}`);

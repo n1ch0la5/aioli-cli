@@ -113,6 +113,54 @@ If you need to modify the default repositories or behavior:
 3. Modify the repository URLs in the CLI code
 4. Publish your version of the CLI
 
+# Windows Compatibility
+
+Aioli CLI now supports both macOS and Windows. Here are some important notes for Windows users:
+
+## Windows-specific Setup
+
+1. **No Herd Support**: Laravel Herd is macOS-specific, so on Windows you'll need to:
+   - Set up a local development environment using Laragon, XAMPP, or Laravel Sail
+   - Configure your hosts file manually to point `projectnameapi.test` to your local server
+
+2. **Command Line Differences**: 
+   - Windows uses different path separators and command syntax
+   - The CLI handles these differences automatically
+
+3. **URL Opening**: 
+   - Windows uses `start` instead of `open` to launch URLs
+   - The updated startdev.js script now handles this automatically
+
+## Troubleshooting on Windows
+
+### Common Issues
+
+1. **SSL Certificate Issues**: 
+   - You may need to manually trust the SSL certificate for your local development environment
+   - Look for options in your local development tool to generate and trust certificates
+
+2. **Path Issues**:
+   - If you encounter path-related errors, try using forward slashes (/) instead of backslashes (\\)
+   - Avoid spaces in your project path
+
+3. **Permission Errors**: 
+   - Run command prompt or PowerShell as Administrator if you encounter permission issues
+   - On Windows, avoid running the CLI from a network drive
+
+4. **Terminal Integration**:
+   - Make sure VS Code's "Open Terminal Programmatically" extension is installed
+   - If terminals don't open automatically, you can manually start the required processes
+
+### Required Software on Windows
+
+- Git for Windows
+- Node.js and npm
+- PHP 8.1+ (available in your PATH)
+- Composer
+- Visual Studio Code with "Open Terminal Programmatically" extension
+
+If you encounter any Windows-specific issues, please report them on the GitHub repository.
+
 ## Troubleshooting
 
 ### Common Issues
