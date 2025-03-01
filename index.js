@@ -238,8 +238,10 @@ program
     
     console.log(`\n🎉 Aioli project "${projectName}" created successfully!`);
     console.log(`\nNext steps:`);
-    console.log(`1. cd ${projectName}`);
-    console.log(`2. Follow setup instructions in ${projectName}api/README.md and ${projectName}app/README.md`);
+    console.log(`1. Run aioli start in the laravel ${projectName}api terminal`);
+    console.log(`2. Register a new user at ${projectName}api/register and save the password`);
+    console.log(`3. Put the email and password from your newly registerd user in the electron ${projectName}app .env file (no # or $ symbols)`)
+    console.log(`4. Run npm run dev in the ${projectName}app terminal`);
     
     // Prompt to open in VS Code
     const readline = require('readline').createInterface({

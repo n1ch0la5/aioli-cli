@@ -13,12 +13,20 @@ The Aioli stack consists of:
 ## Installation
 
 ```bash
-# Install globally via npm
-npm install -g aioli-cli
+# Clone the repository
+git clone https://github.com/n1ch0la5/aioli-cli.git
 
-# Or install directly from GitHub
-npm install -g n1ch0la5/aioli-cli
+# Change to the directory
+cd aioli-cli
+
+# Install dependencies
+npm install
+
+# Link the CLI tool globally
+npm link
 ```
+
+After running these commands, the `aioli` command will be available globally in your terminal.
 
 ## Prerequisites
 
