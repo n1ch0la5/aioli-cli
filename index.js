@@ -162,8 +162,8 @@ program
         
         // Update the values
         appEnv = appEnv
-          .replace(/VITE_LARAVEL_URI=.*/, `VITE_LARAVEL_URI=https://${projectName}.test`)
-          .replace(/VITE_REVERB_HOST=.*/, `VITE_REVERB_HOST=${projectName}.test`);
+          .replace(/VITE_LARAVEL_URI=.*/, `VITE_LARAVEL_URI=https://${projectName}api.test`)
+          .replace(/VITE_REVERB_HOST=.*/, `VITE_REVERB_HOST=${projectName}api.test`);
         
         // Add REVERB_APP_KEY if found
         if (reverbAppKey) {
@@ -172,7 +172,25 @@ program
         
         // Write back the modified .env file
         fs.writeFileSync(path.join(projectPath, `${projectName}app`, '.env'), appEnv);
+        
+        // Delete the .env.example file
+        fs.unlinkSync(path.join(projectPath, `${projectName}app`, '.env.example'));
+        
         console.log('✅ App environment configured successfully');
+        
+        // Try to run npm install in the app directory
+        try {
+          console.log(`Installing npm dependencies in ${projectName}app directory...`);
+          execSync(`cd ${path.join(projectPath, `${projectName}app`)} && npm install`, { 
+            stdio: 'inherit',
+            env: { ...process.env, HOME: require('os').homedir() } // Ensure HOME is set correctly
+          });
+          console.log('✅ npm dependencies installed successfully');
+        } catch (error) {
+          console.error(`⚠️ Failed to install npm dependencies: ${error.message}`);
+          console.error(`You may need to manually run "npm install" in the ${projectName}app directory`);
+          console.error('If you encounter permission errors, try running with sudo or fixing directory permissions');
+        }
       } catch (error) {
         console.error(`❌ Failed to configure app environment: ${error.message}`);
         console.error(`You may need to manually configure the .env file in the ${projectName}app directory`);

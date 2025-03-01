@@ -26,6 +26,7 @@ npm install -g n1ch0la5/aioli-cli
 - Git
 - Laravel Herd (for local development)
 - Visual Studio Code (optional, for the open-in-editor feature)
+- "Open Terminal Programmatically" vscode extension. 
 
 ## Usage
 
@@ -43,10 +44,12 @@ This command:
 5. Runs `php artisan aioli:setup` to configure the Laravel application
 6. Configures the Electron app's environment file with correct values:
    - Creates .env from .env.example
-   - Sets Laravel URI to https://projectname.test
-   - Sets Reverb host to projectname.test
+   - Sets Laravel URI to https://projectnameapi.test
+   - Sets Reverb host to projectnameapi.test
    - Copies the Reverb app key from the Laravel .env
-7. Initializes a new Git repository for the project
+   - Deletes the .env.example file
+7. Attempts to install npm dependencies in the app directory
+8. Initializes a new Git repository for the project
 8. Optionally opens the projects in VS Code
 
 #### Options
