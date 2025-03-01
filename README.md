@@ -93,13 +93,16 @@ myproject/
 ## Development Workflow
 
 1. Create a new project: `aioli new myproject`
-2. Navigate to the project: `cd myproject`
-3. Start the development environment: `aioli start`
-4. Register a new user and copy the email/username to the electron app .env file
-5. Start both applications:
-   - Laravel: `aioli start` (from the project root)
-   - Electron: `cd myprojectapp && npm run dev`
-6. Begin development in the VS Code windows
+2. Navigate to the project directory: `cd myproject`
+3. Start the Laravel API: `aioli start` in the myprojectapi directory
+4. Register a new user at https://myprojectapi.test/register
+5. Add the user credentials to the myprojectapp/.env file:
+   ```
+   VITE_USER_EMAIL=your_email@example.com
+   VITE_USER_PASSWORD=your_password
+   ```
+6. Start the Electron app: Run `npm run dev` in the myprojectapp directory
+7. Begin development in the VS Code windows
 
 ## Customization
 

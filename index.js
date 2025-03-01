@@ -178,6 +178,51 @@ program
         
         console.log('✅ App environment configured successfully');
         
+        // Clear localStorage by creating a script in the app directory
+        console.log('Setting up localStorage clearing...');
+        const electronAppDir = path.join(projectPath, `${projectName}app`);
+        const clearScriptPath = path.join(electronAppDir, 'clear-storage.js');
+        
+        // Create the script to clear localStorage
+        fs.writeFileSync(clearScriptPath, `
+// This script clears localStorage for the Electron app
+const { app } = require('electron');
+const fs = require('fs');
+const path = require('path');
+
+// Run this after the app is ready
+app.on('ready', () => {
+  try {
+    // Get the user data directory
+    const userDataPath = app.getPath('userData');
+    
+    // Clear localStorage files
+    const localStoragePath = path.join(userDataPath, 'Local Storage');
+    if (fs.existsSync(localStoragePath)) {
+      const files = fs.readdirSync(localStoragePath);
+      files.forEach(file => {
+        if (file.includes('leveldb')) {
+          const filePath = path.join(localStoragePath, file);
+          fs.unlinkSync(filePath);
+          console.log(\`Removed localStorage file: \${file}\`);
+        }
+      });
+      console.log('localStorage cleared successfully');
+    } else {
+      console.log('No localStorage directory found');
+    }
+    
+    console.log('Storage clearing completed');
+    process.exit(0);
+  } catch (error) {
+    console.error(\`Error clearing storage: \${error.message}\`);
+    process.exit(1);
+  }
+});
+        `);
+        
+        console.log('✅ localStorage clearing script created');
+        
         // Try to run npm install in the app directory
         try {
           console.log(`Installing npm dependencies in ${projectName}app directory...`);
@@ -220,28 +265,12 @@ program
       // Not exiting here as this is not critical
     }
     
-    // Perform any necessary setup or configuration
-    try {
-      console.log('Setting up project...');
-      
-      // Update project name in relevant files if needed
-      // This would depend on your specific project structure
-      // For example:
-      // - Update package.json in frontend
-      // - Update .env files with project-specific values
-      // - Update configuration files
-      
-      console.log('✅ Project setup completed');
-    } catch (error) {
-      console.error(`❌ Failed to set up project: ${error.message}`);
-    }
-    
     console.log(`\n🎉 Aioli project "${projectName}" created successfully!`);
     console.log(`\nNext steps:`);
-    console.log(`1. Run aioli start in the laravel ${projectName}api terminal`);
-    console.log(`2. Register a new user at ${projectName}api/register and save the password`);
-    console.log(`3. Put the email and password from your newly registerd user in the electron ${projectName}app .env file (no # or $ symbols)`)
-    console.log(`4. Run npm run dev in the ${projectName}app terminal`);
+    console.log(`1. Start Laravel API: Run "aioli start" in the ${projectName}api directory`);
+    console.log(`2. Register a new user at https://${projectName}api.test/register and note the credentials`);
+    console.log(`3. Add the credentials to the ${projectName}app/.env file (VITE_USER_EMAIL and VITE_USER_PASSWORD)`);
+    console.log(`4. Start Electron app: Run "npm run dev" in the ${projectName}app directory`);
     
     // Prompt to open in VS Code
     const readline = require('readline').createInterface({
