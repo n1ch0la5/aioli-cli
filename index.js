@@ -141,20 +141,24 @@ program
       process.exit(1);
     }
     
-    // Run Herd commands in the backend directory (if not on Windows)
-    if (!isWindows) {
-      try {
-        console.log(`Setting up Laravel Herd in ${projectName}api directory...`);
-        execSync(`cd '${path.join(projectPath, `${projectName}api`)}' && herd link`, { stdio: 'inherit' });
-        execSync(`cd '${path.join(projectPath, `${projectName}api`)}' && herd secure`, { stdio: 'inherit' });
-        console.log('✅ Herd setup completed successfully');
-      } catch (error) {
-        console.error(`❌ Failed to set up Herd: ${error.message}`);
-        console.error(`Please run "herd link" and "herd secure" manually in the ${projectName}api directory`);
-        // Not exiting as this is not critical to project creation
-      }
-    } else {
-      console.log(`⚠️ Skipping Herd setup on Windows. Please set up your local development environment manually.`);
+    // Run Herd commands in the backend directory
+    try {
+      console.log(`Setting up Laravel Herd in ${projectName}api directory...`);
+      const herdLinkCmd = isWindows 
+        ? `cd "${path.join(projectPath, `${projectName}api`)}" && herd link`
+        : `cd '${path.join(projectPath, `${projectName}api`)}' && herd link`;
+      
+      const herdSecureCmd = isWindows 
+        ? `cd "${path.join(projectPath, `${projectName}api`)}" && herd secure`
+        : `cd '${path.join(projectPath, `${projectName}api`)}' && herd secure`;
+      
+      execSync(herdLinkCmd, { stdio: 'inherit', shell: isWindows ? true : '/bin/bash' });
+      execSync(herdSecureCmd, { stdio: 'inherit', shell: isWindows ? true : '/bin/bash' });
+      console.log('✅ Herd setup completed successfully');
+    } catch (error) {
+      console.error(`❌ Failed to set up Herd: ${error.message}`);
+      console.error(`Please run "herd link" and "herd secure" manually in the ${projectName}api directory`);
+      // Not exiting as this is not critical to project creation
     }
     
     // Run Composer install and Artisan setup
@@ -259,6 +263,18 @@ program
       console.error(`❌ Failed during Composer/Artisan setup: ${error.message}`);
       console.error(`You may need to run "composer install" and "php artisan aioli:setup" manually in the ${projectName}api directory`);
       // Not exiting as this is not critical to project creation
+    }
+
+    // In your aioli-cli code, after npm install
+    try {
+      console.log(`Clearing localStorage for ${projectName}app...`);
+      execSync(`cd "${path.join(projectPath, `${projectName}app`)}" && node clearStorage.js`, { 
+        stdio: 'inherit',
+        shell: isWindows ? true : '/bin/bash'
+      });
+      console.log('✅ localStorage cleared successfully');
+    } catch (error) {
+      console.error(`⚠️ Failed to clear localStorage: ${error.message}`);
     }
     
     // Initialize a new git repository for the overall project

@@ -33,6 +33,7 @@ After running these commands, the `aioli` command will be available globally in 
 - Node.js and npm
 - Git
 - Laravel Herd (for local development)
+- DBngin (for MySQL and Redis servers)
 - Visual Studio Code (optional, for the open-in-editor feature)
 - "Open Terminal Programmatically" VS Code extension
 
@@ -104,6 +105,17 @@ myproject/
 6. Start the Electron app: Run `npm run dev` in the myprojectapp directory
 7. Begin development in the VS Code windows
 
+## Platform Compatibility
+
+Aioli CLI supports both macOS and Windows. The CLI automatically detects your operating system and adjusts commands accordingly.
+
+### Windows-specific Notes
+
+- Laravel Herd and DBngin are now available for Windows
+- Windows uses `start` instead of `open` to launch URLs (handled automatically)
+- Path separators and command syntax differences are handled automatically
+- For detailed Windows information, see our [Windows Compatibility Guide](windows-compatibility.md)
+
 ## Customization
 
 If you need to modify the default repositories or behavior:
@@ -113,43 +125,53 @@ If you need to modify the default repositories or behavior:
 3. Modify the repository URLs in the CLI code
 4. Publish your version of the CLI
 
-# Windows Compatibility
+# Windows Compatibility Guide
 
-Aioli CLI now supports both macOS and Windows. Here are some important notes for Windows users:
+This guide provides detailed information for using Aioli CLI on Windows.
 
 ## Windows-specific Setup
 
-1. **No Herd Support**: Laravel Herd is macOS-specific, so on Windows you'll need to:
-   - Set up a local development environment using Laragon, XAMPP, or Laravel Sail
-   - Configure your hosts file manually to point `projectnameapi.test` to your local server
+1. **Herd Support**: 
+   - Laravel Herd is now available for Windows! Make sure you have the latest version installed.
+   - The CLI will use Herd commands on Windows just like on macOS.
 
-2. **Command Line Differences**: 
-   - Windows uses different path separators and command syntax
-   - The CLI handles these differences automatically
+2. **DBngin Setup**:
+   - Download and install DBngin for Windows
+   - Create MySQL and Redis instances through the DBngin interface
+   - Note the ports for each service (typically 3306 for MySQL and 6379 for Redis)
 
-3. **URL Opening**: 
-   - Windows uses `start` instead of `open` to launch URLs
-   - The updated startdev.js script now handles this automatically
+3. **Command Line Environment**:
+   - Windows Command Prompt and PowerShell are both supported
+   - For Git-related operations, Git Bash is recommended
 
 ## Troubleshooting on Windows
 
 ### Common Issues
 
 1. **SSL Certificate Issues**: 
-   - You may need to manually trust the SSL certificate for your local development environment
-   - Look for options in your local development tool to generate and trust certificates
+   - If you encounter SSL issues, you may need to manually trust Herd's certificates
+   - Check Herd's documentation for Windows-specific SSL setup
+   - In some cases, you may need to access the site once in your browser to accept the certificate
 
 2. **Path Issues**:
    - If you encounter path-related errors, try using forward slashes (/) instead of backslashes (\\)
    - Avoid spaces in your project path
+   - If a command fails with "not found" errors, ensure the relevant executables are in your system PATH
 
 3. **Permission Errors**: 
-   - Run command prompt or PowerShell as Administrator if you encounter permission issues
+   - Run Command Prompt or PowerShell as Administrator if you encounter permission issues
    - On Windows, avoid running the CLI from a network drive
+   - Check Windows Defender or other security software if processes are being blocked
 
 4. **Terminal Integration**:
    - Make sure VS Code's "Open Terminal Programmatically" extension is installed
    - If terminals don't open automatically, you can manually start the required processes
+   - On Windows, you may need to configure the extension to use the correct shell
+
+5. **Node.js Issues**:
+   - Use the LTS version of Node.js
+   - If npm install fails, try clearing the npm cache with `npm cache clean --force`
+   - For permission issues, try running as Administrator
 
 ### Required Software on Windows
 
@@ -157,7 +179,35 @@ Aioli CLI now supports both macOS and Windows. Here are some important notes for
 - Node.js and npm
 - PHP 8.1+ (available in your PATH)
 - Composer
+- Laravel Herd for Windows
+- DBngin (for MySQL and Redis servers)
 - Visual Studio Code with "Open Terminal Programmatically" extension
+
+## Windows-specific Commands
+
+If you need to run commands manually, here are the Windows equivalents for some common operations:
+
+| macOS Command | Windows Equivalent |
+|---------------|-------------------|
+| `open url` | `start url` |
+| `rm -rf folder` | `rmdir /s /q folder` |
+| `cd 'path with spaces'` | `cd "path with spaces"` |
+| `command && command` | `command && command` (same) |
+
+## Environment Configuration
+
+For database connections and environment configuration on Windows:
+
+1. **MySQL Connection**:
+   - Host: localhost (or 127.0.0.1)
+   - Port: 3306 (or whatever port DBngin is using)
+   - Username: root (typically)
+   - Password: (typically none for DBngin instances)
+
+2. **Redis Connection**:
+   - Host: localhost (or 127.0.0.1)
+   - Port: 6379 (or whatever port DBngin is using)
+   - No password (typically)
 
 If you encounter any Windows-specific issues, please report them on the GitHub repository.
 
@@ -168,6 +218,7 @@ If you encounter any Windows-specific issues, please report them on the GitHub r
 - **Git SSH issues**: Ensure your SSH keys are set up correctly for GitHub
 - **Herd command not found**: Make sure Laravel Herd is installed and in your PATH
 - **VS Code doesn't open**: Ensure the `code` command is available in your terminal
+- **Database connection errors**: Make sure DBngin is running with MySQL and Redis services active
 
 ### Getting Help
 
